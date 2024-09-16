@@ -17,6 +17,6 @@ A execução simbólica no Z3 pode modelar cada decisão de rota como uma variá
 
 - este código utiliza conceitos de execução simbólica descritos por James C. King em seu artigo seminal "Symbolic Execution and Program Testing". A execução simbólica nos permite modelar as diferentes decisões que o Caixeiro Viajante deve tomar, e o solver Z3 é usado para garantir que essas decisões respeitem as restrições do problema. Ao formular o TSP no Z3, utilizamos variáveis simbólicas para representar as cidades e os caminhos, garantindo que cada rota seja única e otimizada.
 
-`King, James C. "Symbolic execution and program testing." Communications of the ACM 19.7 (1976): 385-394.
+`King, James C. "Symbolic execution and program testing." Communications of the ACM 19.7 (1976): 385-394.`
 
 

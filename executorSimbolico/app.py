@@ -87,30 +87,27 @@ def tsp_solver(matrix):
     if solver.check() == sat: #check() verifica se as restrições são satisfazível
         model = solver.model() #retorna um conjunto de valores específicos para as variáveis que satisfazem as restrições
 
-        print("solução encontrada: ")
-        # Imprimir os valores das variáveis
+        caminho = [] #Inicializa uma lista vazia caminho para armazenar as cidades e os caminhos selecionados na solução encontrada pelo solver.
+        distancia_total = 0 #Inicializa a variável distancia_total para acumular a distância total do caminho encontrado.
+
         for i in range(n):
             for j in range(n):
-                # Avalia o valor da variável x[i][j] no modelo
-                value = model.evaluate(x[i][j])
-                print(f'Valor de x[{i}][{j}] é: {value}')
-
-
-        #percorre todas as variáveis x[i][j] que representam se há um caminho entre a cidade i e a cidade j
-        print("\nCaminhos incluídos na solução:")
-        for i in range(n):
-            for j in range(n):
-                #Verificação: Se o valor da variável é 1, significa que o caminho entre as cidades i e j faz parte da solução.
+                 #Verificação: Se o valor da variável é 1, significa que o caminho entre as cidades i e j faz parte da solução.
                 #O método evaluate() é uma função fornecida pelo Z3 que é usada para obter o valor de uma expressão ou variável no modelo de solução encontrado pelo solver.
                 #Quando você resolve um problema com o Z3, o solver encontra um modelo de solução que satisfaz todas as restrições definidas. Esse modelo é uma atribuição dos valores das variáveis que resolve o problema.
                 #O método evaluate() é utilizado para consultar esse modelo e obter o valor específico de uma variável ou expressão no contexto da solução encontrada.
-                #Após chamar solver.check() e verificar que uma solução foi encontrada (ou seja, o resultado foi sat), você pode usar evaluate() para obter os valores das variáveis no modelo que representa a solução.
+                if model.evaluate(x[i][j] == 1):                     
+                    caminho.append((i, j)) #Adiciona o par (i, j) à lista caminho, indicando que o caminho de i para j é parte da solução.
+                    distancia_total += distance_matrix[i][j] #Adiciona a distância entre as cidades i e j à variável distancia_total.
 
-                if model.evaluate(x[i][j]) == 1: 
-                    print(f'Caminho de {i} para {j}')
+        if caminho: #Verifica se a lista caminho não está vazia.
+            distancia_total += distance_matrix[caminho[-1][1]][caminho[0][0]] #Adiciona a distância de volta ao ponto inicial para completar o ciclo. caminho[-1][1] é a última cidade no caminho e caminho[0][0] é a primeira cidade, então distance_matrix[caminho[-1][1]][caminho[0][0]] dá a distância de volta ao ponto inicial.
+
+            print("Solução encontrada: ")
+            print(f"O caminho mais curto deve ser {' -> '.join(str(p[0]) for p in caminho) + ' -> ' + str(caminho[0][0])} com uma distância total de {distancia_total}.")
     else:
         print('Nenhuma solução encontrada.')
-
+    
 
 distance_matrix = [
     [0, 10, 15, 20],
@@ -119,5 +116,103 @@ distance_matrix = [
     [20, 25, 30, 0]
 ]
 
-tsp_solver(distance_matrix)
+distance_matrix_test_1 = [
+    [0, 1, 2],
+    [1, 0, 1],
+    [2, 1, 0]
+]
 
+distance_matrix_test_2 = [
+    [0, 10, 15],
+    [10, 0, 35],
+    [15, 35, 0]
+]
+
+distance_matrix_test_3 = [
+    [0, 2, 9, 10],
+    [1, 0, 6, 4],
+    [15, 7, 0, 8],
+    [6, 3, 12, 0]
+]
+
+distance_matrix_test_4 = [
+    [0, 100, 150, 200],
+    [100, 0, 120, 80],
+    [150, 120, 0, 90],
+    [200, 80, 90, 0]
+]
+
+#Cidades com Distâncias Aleatórias
+distance_matrix_test_5 = [
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+]
+
+#Cidades com Distâncias Crescentes
+distance_matrix_test_6 = [
+    [0, 1, 2],
+    [1, 0, 1],
+    [2, 1, 0]
+]
+
+#Cidades com Distâncias Aleatórias
+distance_matrix_test_7 = [
+    [0, 2, 9, 10],
+    [1, 0, 6, 4],
+    [15, 7, 0, 8],
+    [6, 3, 12, 0]
+]
+
+#Cidades com Distâncias Grandes
+distance_matrix_test_8 = [
+    [0, 100, 150, 200],
+    [100, 0, 120, 80],
+    [150, 120, 0, 90],
+    [200, 80, 90, 0]
+]
+
+# Cidades com Distâncias Aleatórias
+distance_matrix_test_9 = [
+    [0, 2, 9, 10, 15],
+    [2, 0, 7, 8, 10],
+    [9, 7, 0, 6, 8],
+    [10, 8, 6, 0, 5],
+    [15, 10, 8, 5, 0]
+]
+
+# Cidades com Distâncias Aleatórias
+distance_matrix_test_10 = [
+    [0, 29, 20, 21, 16, 31],
+    [29, 0, 15, 17, 28, 40],
+    [20, 15, 0, 35, 25, 30],
+    [21, 17, 35, 0, 27, 25],
+    [16, 28, 25, 27, 0, 21],
+    [31, 40, 30, 25, 21, 0]
+]
+
+
+print("Teste 1:")
+tsp_solver(distance_matrix_test_1)
+
+print("\nTeste 2:")
+tsp_solver(distance_matrix_test_2)
+
+print("\nTeste 3:")
+tsp_solver(distance_matrix_test_3)
+
+print("\nTeste 4:")
+tsp_solver(distance_matrix_test_4)
+
+print("\nTeste 5:")
+tsp_solver(distance_matrix_test_5)
+
+print("\nTeste 6:")
+tsp_solver(distance_matrix_test_6)
+
+print("\nTeste 7:")
+tsp_solver(distance_matrix_test_7)
+
+print("\nTeste 8:")
+tsp_solver(distance_matrix_test_8)
