@@ -1,3 +1,12 @@
+"""
+Este código utiliza conceitos de execução simbólica descritos por James C. King em seu artigo seminal "Symbolic Execution and Program Testing". A execução simbólica nos permite modelar as diferentes decisões que o Caixeiro Viajante deve tomar, e o solver Z3 é usado para garantir que essas decisões respeitem as restrições do problema. Ao formular o TSP no Z3, utilizamos variáveis simbólicas para representar as cidades e os caminhos, garantindo que cada rota seja única e otimizada.
+
+Referência: 
+King, James C. "Symbolic execution and program testing." Communications of the ACM 19.7 (1976): 385-394.
+"""
+
+
+
 from z3 import *
 
 def tsp_solver(matrix):
@@ -110,16 +119,5 @@ distance_matrix = [
     [20, 25, 30, 0]
 ]
 
-
 tsp_solver(distance_matrix)
-
-
-"""
-Problema para resolver:
-
-1 - as variáveis de decisão x[i][i] estão sendo incluídas na solução, o que significa que o solver está escolhendo caminhos que retornam à mesma cidade, ao invés de garantir que o caixeiro passe por todas as cidades de forma correta. Isso se deve à falta de uma restrição que evite que uma cidade tenha um caminho de volta para si mesma (caminhos x[i][i]).
-
-2 - garantir que o solver forme um ciclo hamiltoniano (onde todas as cidades são visitadas exatamente uma vez em um ciclo),
-
-"""
 
