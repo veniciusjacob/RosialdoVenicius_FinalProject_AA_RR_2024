@@ -109,3 +109,14 @@ distance_matrix = [
 
 
 tsp_solver(distance_matrix)
+
+
+"""
+Problema para resolver:
+
+1 - as variáveis de decisão x[i][i] estão sendo incluídas na solução, o que significa que o solver está escolhendo caminhos que retornam à mesma cidade, ao invés de garantir que o caixeiro passe por todas as cidades de forma correta. Isso se deve à falta de uma restrição que evite que uma cidade tenha um caminho de volta para si mesma (caminhos x[i][i]).
+
+2 - garantir que o solver forme um ciclo hamiltoniano (onde todas as cidades são visitadas exatamente uma vez em um ciclo),
+
+"""
+
