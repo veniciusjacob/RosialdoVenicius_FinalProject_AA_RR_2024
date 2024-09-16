@@ -1,79 +1,73 @@
-# Executor Simbólico:
+# Executor Simbólico para o Problema do Caixeiro Viajante (TSP)
 
-- O executor simbólico é uma técnica de análise estática que busca explorar todas as execuções possíveis de um programa, considerando entradas simbólicas ao invés de valores concretos. Isso permite avaliar caminhos diferentes de execução do programa para detectar bugs ou otimizar soluções.
-O artigo de James C. King introduz o conceito de execução simbólica, onde ele descreve como uma ferramenta para explorar sistematicamente diferentes comportamentos de um programa. No contexto atual, a execução simbólica é utilizada para resolver problemas de tomada de decisão dentro do programa, como o problema do Caixeiro Viajante.
+O Executor Simbólico é uma técnica de análise estática que explora todas as execuções possíveis de um programa utilizando entradas simbólicas ao invés de valores concretos. Isso permite uma avaliação abrangente dos caminhos de execução do programa, auxiliando na detecção de bugs e na otimização de soluções. O conceito foi introduzido por James C. King em seu artigo seminal, "Symbolic Execution and Program Testing".
 
-## Relacionamento com o Z3:
+## Relacionamento com o Z3
 
-- O Z3 é um solver SMT (Satisfiability Modulo Theories) que permite resolver problemas de decisão baseados em lógica matemática. No projeto atual, o Z3 pode ser utilizado para formular o problema do Caixeiro Viajante como um conjunto de restrições, como a necessidade de passar por todas as cidades sem retornar a uma cidade anterior antes de completar o ciclo.
-A execução simbólica no Z3 pode modelar cada decisão de rota como uma variável simbólica, e o solver trabalha para satisfazer as restrições que garantem que o ciclo seja válido, sem redundâncias.
+O Z3 é um solver SMT (Satisfiability Modulo Theories) desenvolvido para resolver problemas de decisão baseados em lógica matemática. No contexto deste projeto, o Z3 é utilizado para formular o Problema do Caixeiro Viajante (TSP) como um conjunto de restrições matemáticas, permitindo a modelagem e solução do problema. A execução simbólica é empregada para representar as decisões de rota como variáveis simbólicas e o Z3 resolve essas variáveis para satisfazer todas as restrições impostas pelo problema.
 
-## Caixeiro Viajante (TSP):
+## Problema do Caixeiro Viajante (TSP)
 
-- O TSP é um problema de otimização combinatória onde um agente deve visitar um conjunto de cidades exatamente uma vez e retornar à cidade de origem, minimizando a distância total percorrida.
-- O Z3 pode ser utilizado para definir esse problema, onde as cidades são representadas como nós e as viagens entre cidades são variáveis de decisão. A execução simbólica ajuda a garantir que todas as possíveis rotas sejam avaliadas, e o Z3 encontra a solução que satisfaz todas as restrições.
+O TSP é um problema de otimização combinatória onde um agente deve visitar um conjunto de cidades exatamente uma vez e retornar à cidade de origem, minimizando a distância total percorrida. O Z3 é utilizado para definir e resolver este problema, onde as cidades são representadas como nós e as viagens entre cidades são variáveis de decisão. A execução simbólica ajuda a garantir que todas as rotas possíveis sejam avaliadas e que a solução encontrada seja a mais eficiente.
 
 ## Visão Geral
 
-O código usa conceitos de execução simbólica descritos por James C. King em seu artigo seminal "Symbolic Execution and Program Testing". A execução simbólica permite modelar diferentes decisões que o Caixeiro Viajante deve tomar, e o solver Z3 é usado para garantir que essas decisões respeitem as restrições do problema.
+O código utiliza conceitos de execução simbólica descritos por James C. King e emprega o solver Z3 para encontrar a solução para o TSP. A execução simbólica modela as decisões do Caixeiro Viajante e o Z3 garante que todas as restrições sejam respeitadas, fornecendo a rota mais curta possível.
 
 ## Como Funciona
 
-**Criação das Variáveis de Decisão:**
-- Uma matriz de variáveis simbólicas `x[i][j]` é criada para representar se um caminho entre a cidade `i` e a cidade `j` é parte da solução.
+1. **Criação das Variáveis de Decisão:**
+   - Uma matriz de variáveis simbólicas `x[i][j]` é criada para representar se um caminho entre a cidade `i` e a cidade `j` é incluído na solução.
 
-**Restrições de Valores das Variáveis:**
-- As variáveis `x[i][j]` são restritas a 0 ou 1.
-- A restrição `x[i][i]` deve ser 0, garantindo que não haja laços.
+2. **Restrições de Valores das Variáveis:**
+   - As variáveis `x[i][j]` são binárias (0 ou 1).
+   - A restrição `x[i][i]` deve ser 0 para garantir que não haja laços.
 
-**Restrição de Precisão das Cidades:**
-- Cada cidade deve ter exatamente uma entrada e uma saída, garantindo que o caminho formado seja um ciclo. As restrições de que cada cidade deve ter exatamente uma entrada e uma saída são implementadas de forma eficiente com `Sum(saidas) == 1` e `Sum(entradas) == 1.`
+3. **Restrições de Precisão das Cidades:**
+   - Cada cidade deve ter exatamente uma entrada e uma saída, garantindo a formação de um ciclo. Isso é garantido com as restrições `Sum(saidas) == 1` e `Sum(entradas) == 1`.
 
-**Função Objetivo:**
-- A função objetivo é minimizar a distância total percorrida e usa `solver.minimize(objective)` para isso.
+4. **Função Objetivo:**
+   - A função objetivo é minimizar a distância total percorrida, e o Z3 é utilizado para minimizar essa função através de `solver.minimize(objective)`.
 
-**Verificação e Exibição dos Resultados:**
-- O código verifica a satisfação das restrições e exibe o caminho encontrado e a distância total.
-   
+5. **Verificação e Exibição dos Resultados:**
+   - O código verifica a satisfação das restrições e exibe o caminho encontrado e a distância total percorrida.
+
 ## Como Usar
 
 1. **Instale o Z3:**
-   
-   Certifique-se de ter o Z3 instalado. Você pode instalar a biblioteca usando pip:
-   ```bash
-   pip install z3-solver
-   ```
+   - Certifique-se de que o Z3 esteja instalado. Você pode instalar a biblioteca usando pip:
+     ```bash
+     pip install z3-solver
+     ```
 
 2. **Execute o Código:**
-   ```bash
-   python3 tsp_solver.py
-   ```
-3. **Saída Esperada:**: 
+   - Salve o código em um arquivo chamado `tsp_solver.py` e execute-o com o Python:
+     ```bash
+     python3 tsp_solver.py
+     ```
 
-- Para cada matriz de distâncias, o código exibirá o caminho mais curto encontrado e a distância total.
+3. **Saída Esperada:**
+   - Para cada matriz de distâncias fornecida, o código exibirá o caminho mais curto encontrado e a distância total percorrida.
 
 ## Testes
 
-O código inclui vários testes com diferentes matrizes de distâncias:
+O código inclui vários testes com diferentes matrizes de distâncias para avaliar sua eficácia:
 
-- distance_matrix_test_1
-- distance_matrix_test_2
-- distance_matrix_test_3
-- distance_matrix_test_4
-- distance_matrix_test_5
-- distance_matrix_test_6
-- distance_matrix_test_7
-- distance_matrix_test_8
-- distance_matrix_test_9
-- distance_matrix_test_10
+- **Teste 1:** Caso Simples (3 cidades)
+- **Teste 2:** Distâncias Variadas (4 cidades)
+- **Teste 3:** Assimetrias no Caminho (4 cidades)
+- **Teste 4:** Caminhos Longos e Curtos (4 cidades)
+- **Teste 5:** Cidades Muito Próximas (5 cidades)
+- **Teste 6:** Grande Desigualdade nas Distâncias (5 cidades)
+- **Teste 7:** Distâncias Aleatórias (6 cidades)
+- **Teste 8:** Matriz Grande com Simetria (8 cidades)
 
-Esses testes cobrem distâncias aleatórias, crescentes e grandes.
+Cada teste cobre diferentes cenários, desde distâncias aleatórias até distâncias com grande desigualdade.
 
 ## Referência
 
-- este código utiliza conceitos de execução simbólica descritos por James C. King em seu artigo seminal "Symbolic Execution and Program Testing". A execução simbólica nos permite modelar as diferentes decisões que o Caixeiro Viajante deve tomar, e o solver Z3 é usado para garantir que essas decisões respeitem as restrições do problema. Ao formular o TSP no Z3, utilizamos variáveis simbólicas para representar as cidades e os caminhos, garantindo que cada rota seja única e otimizada.
+Este código utiliza conceitos descritos por James C. King em seu artigo seminal "Symbolic Execution and Program Testing":
 
-`James C. King. 1976. Symbolic execution and program testing. Commun. ACM 19, 7 (July 1976), 385–394.
-https://doi.org/10.1145/360248.360252`
-
+- James C. King. 1976. Symbolic execution and program testing. Commun. ACM 19, 7 (July 1976), 385–394.
+- [Link para o artigo](https://doi.org/10.1145/360248.360252)
 
