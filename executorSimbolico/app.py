@@ -28,12 +28,15 @@ def tsp_solver(matrix):
     #x[i][j] só é um nome, e o Z3 ainda não sabe o valor que ela vai ter.
     for i in range(n):
         for j in range(n):
-            solver.add(Or(x[i][j] == 0, x[i][j] == 1)) #adiciona a restrição ao solver
-            #Esse comando está dizendo ao Z3: "A variável x[i][j] só pode assumir dois valores, ou ela será igual a 0, ou ela será igual a 1."
-            #Aqui estamos impondo uma restrição. 
-            # Ainda não estamos dizendo ao Z3 o valor exato de x[i][j] (se é 0 ou 1), mas estamos limitando as opções a apenas essas duas.
-            #Antes da Restrição: Antes dessa linha, x[i][j] é uma variável simbólica que pode ter qualquer valor inteiro.
-            #Depois da Restrição: Após adicionar essa restrição, o solver Z3 é informado que x[i][j] deve ser 0 ou 1. Isso limita os valores possíveis para essa variável e ajuda a definir o espaço de busca para encontrar uma solução.
+            if i != j:
+                solver.add(Or(x[i][j] == 0, x[i][j] == 1)) #adiciona a restrição ao solver
+                #Esse comando está dizendo ao Z3: "A variável x[i][j] só pode assumir dois valores, ou ela será igual a 0, ou ela será igual a 1."
+                #Aqui estamos impondo uma restrição. 
+                # Ainda não estamos dizendo ao Z3 o valor exato de x[i][j] (se é 0 ou 1), mas estamos limitando as opções a apenas essas duas.
+                #Antes da Restrição: Antes dessa linha, x[i][j] é uma variável simbólica que pode ter qualquer valor inteiro.
+                #Depois da Restrição: Após adicionar essa restrição, o solver Z3 é informado que x[i][j] deve ser 0 ou 1. Isso limita os valores possíveis para essa variável e ajuda a definir o espaço de busca para encontrar uma solução.
+            else:
+                solver.add(x[i][j] == 0 ) # x[i][i] deve ser 0
 
     #O objetivo desse bloco de código é garantir que cada cidade seja visitada exatamente uma vez e que haja exatamente um caminho de saída e um caminho de entrada para cada cidade.
     for i in range(n):
