@@ -9,8 +9,8 @@ King, James C. "Symbolic execution and program testing." Communications of the A
 
 from z3 import *
 
-def tsp_solver(matrix):
-    n = len(matrix) #número de cidades 
+def tsp_solver(distance_matrix):
+    n = len(distance_matrix) #número de cidades 
     print(f"Número de cidades: {n} \n")
 
     x = [] # inicializa uma lista x que armazenará as variáveis inteiras que representarão se um caminho entre duas cidades é escolhido ou não.
@@ -216,3 +216,9 @@ tsp_solver(distance_matrix_test_7)
 
 print("\nTeste 8:")
 tsp_solver(distance_matrix_test_8)
+
+print("\nTeste 9:")
+tsp_solver(distance_matrix_test_9)
+
+print("\nTeste 10:")
+tsp_solver(distance_matrix_test_10)
