@@ -77,9 +77,32 @@ def tsp_solver(distance_matrix):
     # Variáveis auxiliares para evitar subciclos
     u = [Int(f'u[{i}]') for i in range(n)] # Aqui, estamos criando uma lista chamada u de variáveis inteiras (Int), com o mesmo tamanho do número de cidades n.
     # Cada cidade vai receber uma variável u[i], que será usada para ajudar a evitar subciclos. Subciclos são pequenos ciclos dentro do grande ciclo do Caixeiro Viajante que fariam o vendedor repetir cidades, o que não pode acontecer.
-    for i in range(1, n):
-        solver.add(u[i] >= 1)
-        solver.add(u[i] <= n - 1)
+
+    """
+        Por que estamos criando a lista u[]?
+        Esse é um truque que ajuda a resolver o problema de forma correta. O problema do Caixeiro Viajante tem que garantir que o vendedor faça apenas um grande ciclo, ou seja, visite todas as cidades uma vez e retorne ao ponto de origem, sem formar ciclos menores no caminho (os subciclos).
+
+        As variáveis u[i] são usadas como rótulos numéricos para as cidades (exceto a primeira cidade) que nos ajudam a verificar se estamos evitando esses subciclos.
+    """
+    for i in range(1, n): # Esse loop começa da segunda cidade (i = 1) e vai até a última cidade (n - 1). Estamos ignorando a cidade 0 (a primeira), porque essa cidade é o ponto de partida e o ponto final, e não precisamos de um rótulo numérico para ela.
+
+        solver.add(u[i] >= 1) # Aqui, estamos adicionando uma restrição ao solver: para todas as cidades (exceto a cidade inicial i = 0), o valor de u[i] deve ser maior ou igual a 1.
+
+        solver.add(u[i] <= (n - 1)) # Essa linha adiciona outra restrição ao solver: para todas as cidades (exceto a cidade inicial i = 0), o valor de u[i] deve ser menor ou igual a n - 1. Isso limita os valores de u[i] para garantir que uma numeração válida, sem ultrapassar o número de cidades.
+
+        #Esse conjunto de restrições (usando u[i]) ajuda a garantir que o solver evite subciclos. Vamos entender por que:
+
+        '''
+            Como as variáveis u[i] evitam subciclos:
+
+            as variáveis u[i] são um truque para evitar esses subciclos
+
+            O vendedor sai da cidade A com um "rótulo" que não é numérico, porque ele sempre começa na cidade inicial.
+            Quando ele vai para a cidade B, a variável u[B] recebe o valor 1. Isso representa a "primeira parada".
+            Quando ele vai para a cidade C, a variável u[C] recebe o valor 2. Isso significa que ele está progredindo na viagem.
+            Se o vendedor tentasse voltar para a cidade A (fechando um ciclo parcial), isso implicaria que ele estaria diminuindo os rótulos (de 2 para 0), o que não é permitido.
+            As variáveis u[i] garantem que o vendedor só pode seguir em uma ordem crescente de rótulos, ou seja, ele sempre "progride" para a próxima cidade. Isso impede que ele feche pequenos ciclos sem visitar todas as cidades.
+        '''
 
     # Restrições de subtour elimination: se x[i][j] == 1, então u[i] + 1 == u[j]
     for i in range(1, n):
