@@ -296,7 +296,3 @@ distance_matrix_test_8 = [
 print("Teste 8:")
 tsp_solver(distance_matrix_test_8)
 
-
-
-
-
