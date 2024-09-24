@@ -41,9 +41,9 @@ O código utiliza conceitos de execução simbólica descritos por James C. King
      ```
 
 2. **Execute o Código:**
-   - Salve o código em um arquivo chamado `tsp_solver.py` e execute-o com o Python:
+   - Salve o código em um arquivo chamado `app_saidaComum.py` ou `app_saidaDetalhada.py` e execute-o com o Python:
      ```bash
-     python3 tsp_solver.py
+     app_saidaComum.py
      ```
 
 3. **Saída Esperada:**
