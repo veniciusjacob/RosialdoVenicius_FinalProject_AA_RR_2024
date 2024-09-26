@@ -6,6 +6,17 @@ King, James C. "Symbolic execution and program testing." Communications of the A
 """
 
 from z3 import *
+import time
+import threading
+
+# Função para exibir uma animação de progresso
+def mostrar_progresso(flag):
+    progress = ['|', '/', '-', '\\']  # Animação simples de progresso
+    i = 0
+    while flag['running']:
+        print(f'\rProcessando... {progress[i % len(progress)]}', end='', flush=True)
+        time.sleep(0.1)
+        i += 1
 
 def tsp_solver(distance_matrix):
     n = len(distance_matrix) #número de cidades 
@@ -177,122 +188,157 @@ def tsp_solver(distance_matrix):
     solver.add(objective == objective_expr) # Aqui, estamos informando ao solver que a variável objective é igual à soma total das distâncias percorridas, que foi acumulada em objective_expr.
     solver.minimize(objective) # Essa linha instrui o solver a minimizar o valor da variável objective. Em outras palavras, estamos pedindo ao solver para encontrar o caminho que minimize a distância total percorrida.
 
-    #Verificando a Solução
-    if solver.check() == sat: # ssa linha verifica se o solver encontrou uma solução satisfatória
-        model = solver.model() # Se uma solução foi encontrada, essa linha extrai o modelo da solução, que contém os valores de todas as variáveis que satisfazem as restrições. Ou seja, ele nos dá as rotas x[i][j] que o vendedor deve seguir para minimizar a distância.
+    # Monitorando o progresso do solver
+    flag = {'running': True}  # Flag para controlar a thread de animação
+    progresso_thread = threading.Thread(target=mostrar_progresso, args=(flag,))
+    progresso_thread.start()
 
-        print("Solução encontrada:")
+    # Medindo o tempo de execução
+    print("\nVerificando solução...")
+    start_time = time.time()  # Início do temporizador
+    if solver.check() == sat:
+        execution_time = time.time() - start_time  # Calcula o tempo de execução
+        model = solver.model()
+        flag['running'] = False  # Para a thread de progresso
+        progresso_thread.join()  # Espera a thread terminar
+        print(f"\nSolução encontrada em {execution_time:.2f} segundos.")
         caminho = []
-        cidade_atual = 0  # Começando da cidade 0
+        cidade_atual = 0
         caminho.append(cidade_atual)
 
-        for i in range(n - 1):  # Precisamos de n-1 movimentos para completar o ciclo
+        for i in range(n - 1):
             for j in range(n):
-                if model.evaluate(x[cidade_atual][j]) == 1: # Aqui, verificamos se no modelo de solução gerado pelo solver, x[cidade_atual][j] == 1. Isso significa que o vendedor foi da cidade cidade_atual para a cidade j. Se sim:
-
-                
-
-                    caminho.append(j) #Adicionamos a cidade j ao caminho
-                    cidade_atual = j # Atualizamos a variável cidade_atual para j, para continuar o processo a partir da nova cidade.
-                    break # para sair do loop, porque já encontramos a próxima cidade.
-        caminho.append(0)  # Depois de visitar todas as cidades, o vendedor deve voltar para a cidade inicial. Essa linha adiciona a cidade 0 novamente ao caminho, completando o ciclo.
+                if model.evaluate(x[cidade_atual][j]) == 1:
+                    caminho.append(j)
+                    cidade_atual = j
+                    break
+        caminho.append(0)
         print(f"Caminho completo: {caminho}")
     else:
-        print('Nenhuma solução encontrada.')
-
+        flag['running'] = False  # Para a thread de progresso
+        progresso_thread.join()  # Espera a thread terminar
+        execution_time = time.time() - start_time  # Calcula o tempo mesmo se falhar
+        print(f"\nNenhuma solução encontrada em {execution_time:.2f} segundos.")
 # Teste com diferentes matrizes de distâncias
 
-# Teste 1: Caso Simples (3 cidades)
-distance_matrix_test_1 = [
-    [0, 1, 1],
-    [1, 0, 1],
-    [1, 1, 0]
-]
-print("Teste 1:")
-tsp_solver(distance_matrix_test_1)
-print()
+# # Teste 1: Caso Simples (3 cidades)
+# distance_matrix_test_1 = [
+#     [0, 1, 1],
+#     [1, 0, 1],
+#     [1, 1, 0]
+# ]
+# print("Teste 1:")
+# tsp_solver(distance_matrix_test_1)
+# print()
 
-# Teste 2: Distâncias Variadas (4 cidades)
-distance_matrix_test_2 = [
-    [0, 10, 15, 20],
-    [10, 0, 35, 25],
-    [15, 35, 0, 30],
-    [20, 25, 30, 0]
-]
-print("Teste 2:")
-tsp_solver(distance_matrix_test_2)
-print()
+# # Teste 2: Distâncias Variadas (4 cidades)
+# distance_matrix_test_2 = [
+#     [0, 10, 15, 20],
+#     [10, 0, 35, 25],
+#     [15, 35, 0, 30],
+#     [20, 25, 30, 0]
+# ]
+# print("Teste 2:")
+# tsp_solver(distance_matrix_test_2)
+# print()
 
-# Teste 3: Assimetrias no Caminho (4 cidades)
-distance_matrix_test_3 = [
-    [0, 2, 9, 10],
-    [1, 0, 6, 4],
-    [15, 7, 0, 8],
-    [6, 3, 12, 0]
-]
-print("Teste 3:")
-tsp_solver(distance_matrix_test_3)
-print()
+# # Teste 3: Assimetrias no Caminho (4 cidades)
+# distance_matrix_test_3 = [
+#     [0, 2, 9, 10],
+#     [1, 0, 6, 4],
+#     [15, 7, 0, 8],
+#     [6, 3, 12, 0]
+# ]
+# print("Teste 3:")
+# tsp_solver(distance_matrix_test_3)
+# print()
 
-# Teste 4: Caminhos Longos e Curtos (4 cidades)
-distance_matrix_test_4 = [
-    [0, 100, 150, 200],
-    [100, 0, 120, 80],
-    [150, 120, 0, 90],
-    [200, 80, 90, 0]
-]
-print("Teste 4:")
-tsp_solver(distance_matrix_test_4)
-print()
+# # Teste 4: Caminhos Longos e Curtos (4 cidades)
+# distance_matrix_test_4 = [
+#     [0, 100, 150, 200],
+#     [100, 0, 120, 80],
+#     [150, 120, 0, 90],
+#     [200, 80, 90, 0]
+# ]
+# print("Teste 4:")
+# tsp_solver(distance_matrix_test_4)
+# print()
 
-# Teste 5: Matriz com Cidades Muito Próximas (5 cidades)
-distance_matrix_test_5 = [
-    [0, 2, 3, 4, 5],
-    [2, 0, 2, 3, 4],
-    [3, 2, 0, 2, 3],
-    [4, 3, 2, 0, 2],
-    [5, 4, 3, 2, 0]
-]
-print("Teste 5:")
-tsp_solver(distance_matrix_test_5)
-print()
+# # Teste 5: Matriz com Cidades Muito Próximas (5 cidades)
+# distance_matrix_test_5 = [
+#     [0, 2, 3, 4, 5],
+#     [2, 0, 2, 3, 4],
+#     [3, 2, 0, 2, 3],
+#     [4, 3, 2, 0, 2],
+#     [5, 4, 3, 2, 0]
+# ]
+# print("Teste 5:")
+# tsp_solver(distance_matrix_test_5)
+# print()
 
-# Teste 6: Grande Desigualdade nas Distâncias (5 cidades)
-distance_matrix_test_6 = [
-    [0, 5, 100, 100, 100],
-    [5, 0, 10, 10, 10],
-    [100, 10, 0, 5, 5],
-    [100, 10, 5, 0, 1],
-    [100, 10, 5, 1, 0]
-]
-print("Teste 6:")
-tsp_solver(distance_matrix_test_6)
-print()
+# # Teste 6: Grande Desigualdade nas Distâncias (5 cidades)
+# distance_matrix_test_6 = [
+#     [0, 5, 100, 100, 100],
+#     [5, 0, 10, 10, 10],
+#     [100, 10, 0, 5, 5],
+#     [100, 10, 5, 0, 1],
+#     [100, 10, 5, 1, 0]
+# ]
+# print("Teste 6:")
+# tsp_solver(distance_matrix_test_6)
+# print()
 
-# Teste 7: Distâncias Aleatórias (6 cidades)
-distance_matrix_test_7 = [
-    [0, 10, 15, 20, 5, 25],
-    [10, 0, 35, 25, 30, 20],
-    [15, 35, 0, 30, 10, 50],
-    [20, 25, 30, 0, 15, 40],
-    [5, 30, 10, 15, 0, 45],
-    [25, 20, 50, 40, 45, 0]
-]
-print("Teste 7:")
-tsp_solver(distance_matrix_test_7)
-print()
+# # Teste 7: Distâncias Aleatórias (6 cidades)
+# distance_matrix_test_7 = [
+#     [0, 10, 15, 20, 5, 25],
+#     [10, 0, 35, 25, 30, 20],
+#     [15, 35, 0, 30, 10, 50],
+#     [20, 25, 30, 0, 15, 40],
+#     [5, 30, 10, 15, 0, 45],
+#     [25, 20, 50, 40, 45, 0]
+# ]
+# print("Teste 7:")
+# tsp_solver(distance_matrix_test_7)
+# print()
 
 # Teste 8: Matriz Grande com Simetria (8 cidades)
-distance_matrix_test_8 = [
-    [0, 2, 3, 4, 5, 6, 7, 8],
-    [2, 0, 2, 3, 4, 5, 6, 7],
-    [3, 2, 0, 2, 3, 4, 5, 6],
-    [4, 3, 2, 0, 2, 3, 4, 5],
-    [5, 4, 3, 2, 0, 2, 3, 4],
-    [6, 5, 4, 3, 2, 0, 2, 3],
-    [7, 6, 5, 4, 3, 2, 0, 2],
-    [8, 7, 6, 5, 4, 3, 2, 0]
+# distance_matrix_test_8 = [
+#     [0, 2, 3, 4, 5, 6, 7, 8],
+#     [2, 0, 2, 3, 4, 5, 6, 7],
+#     [3, 2, 0, 2, 3, 4, 5, 6],
+#     [4, 3, 2, 0, 2, 3, 4, 5],
+#     [5, 4, 3, 2, 0, 2, 3, 4],
+#     [6, 5, 4, 3, 2, 0, 2, 3],
+#     [7, 6, 5, 4, 3, 2, 0, 2],
+#     [8, 7, 6, 5, 4, 3, 2, 0]
+# ]
+# print("Teste 8:")
+# tsp_solver(distance_matrix_test_8)
+
+
+distance_matrix_test_20 = [
+    [0, 24, 16, 32, 10, 25, 38, 43, 18, 27, 14, 41, 35, 22, 39, 47, 15, 30, 42, 19],
+    [24, 0, 20, 12, 30, 28, 31, 11, 33, 40, 29, 38, 21, 27, 23, 10, 39, 44, 17, 36],
+    [16, 20, 0, 25, 12, 39, 18, 21, 34, 15, 36, 45, 19, 23, 14, 33, 42, 29, 48, 22],
+    [32, 12, 25, 0, 45, 17, 22, 30, 19, 28, 24, 41, 15, 14, 40, 27, 26, 13, 44, 32],
+    [10, 30, 12, 45, 0, 26, 38, 20, 48, 23, 31, 39, 22, 14, 20, 17, 21, 10, 34, 46],
+    [25, 28, 39, 17, 26, 0, 29, 11, 19, 38, 10, 16, 35, 27, 23, 45, 20, 30, 24, 34],
+    [38, 31, 18, 22, 38, 29, 0, 42, 10, 45, 36, 24, 22, 30, 11, 40, 20, 48, 39, 23],
+    [43, 11, 21, 30, 20, 11, 42, 0, 50, 13, 36, 25, 12, 32, 17, 19, 29, 35, 22, 30],
+    [18, 33, 34, 19, 48, 19, 10, 50, 0, 29, 27, 43, 36, 23, 41, 33, 15, 40, 22, 11],
+    [27, 40, 15, 28, 23, 38, 45, 13, 29, 0, 20, 14, 35, 30, 19, 11, 16, 32, 28, 43],
+    [14, 29, 36, 24, 31, 10, 36, 36, 27, 20, 0, 12, 28, 19, 21, 30, 39, 22, 18, 25],
+    [41, 38, 45, 41, 39, 16, 24, 25, 43, 14, 12, 0, 35, 22, 31, 19, 20, 37, 21, 24],
+    [35, 21, 19, 15, 22, 35, 22, 12, 36, 35, 28, 35, 0, 30, 48, 42, 25, 38, 16, 30],
+    [22, 27, 23, 14, 14, 27, 30, 32, 23, 30, 19, 22, 30, 0, 45, 40, 33, 10, 50, 31],
+    [39, 23, 14, 40, 20, 23, 11, 17, 41, 19, 21, 31, 48, 45, 0, 10, 15, 34, 27, 19],
+    [47, 10, 33, 27, 17, 45, 40, 19, 33, 11, 30, 19, 42, 40, 10, 0, 20, 29, 44, 38],
+    [15, 39, 42, 26, 21, 20, 20, 29, 15, 16, 39, 20, 25, 33, 15, 20, 0, 45, 36, 50],
+    [30, 44, 29, 13, 10, 30, 48, 35, 40, 32, 22, 37, 38, 10, 34, 29, 45, 0, 19, 15],
+    [42, 17, 48, 44, 34, 24, 39, 22, 22, 28, 18, 21, 16, 50, 27, 44, 36, 19, 0, 12],
+    [19, 36, 22, 32, 46, 34, 23, 30, 11, 43, 25, 24, 30, 31, 19, 38, 50, 15, 12, 0]
 ]
-print("Teste 8:")
-tsp_solver(distance_matrix_test_8)
+
+print("Teste 20:")
+tsp_solver(distance_matrix_test_20)
 
